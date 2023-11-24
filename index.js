@@ -19,26 +19,28 @@ const texts = {
     "Por favor, escriba el indicador de la tarea completada. Si no lo sabe, escriba -1",
 };
 
-const keep = (option) => {
-  option = option.toUpperCase();
-  option == "Y" ? script(false) : console.log("Adiós");
-};
 
 const taskList = [
-    {
-      description: "Nueva tarea",
-      complete: false,
-    },
-  ];
-  
- const addTask = (description) => {
+  {
+    description: "Nueva tarea",
+    complete: false,
+  },
+];
+
+function addTask (description) {
+  return new Promise ((resolve, reject) => {
     taskList.push({
       description: description,
       complete: false,
     });
-  };
-  
- const deleteTask = (taskIndex) => {
+    setTimeout(() => {
+      resolve("resolved");
+  },3000);
+  });
+};
+
+const deleteTask = (taskIndex) => {
+  return new Promise((resolve, reject) => {
     if (taskIndex == "-1") {
       console.log(
         "Utilice el menú para mostrar la lista de tareas y conocer el indicador de la misma."
@@ -47,9 +49,14 @@ const taskList = [
       taskIndex--;
       taskList.splice(taskIndex, 1);
     }
-  };
-  
-  const completeTask = (taskIndex) => {
+    setTimeout(() => {
+      resolve("resolved");
+    }, 3000);
+  });
+};
+
+const completeTask = (taskIndex) => {
+  return new Promise((resolve) => {
     if (taskIndex == "-1") {
       console.log(
         "Utilice el menú para mostrar la lista de tareas y conocer el indicador de la misma."
@@ -57,21 +64,40 @@ const taskList = [
     } else {
       taskIndex--;
       taskList[taskIndex].complete = true;
-    }
-  };
+    };
+    setTimeout(() => {
+      resolve("resolved");
+    }, 3000);
+  });
   
-  const showTasks = () => {
-    console.log("LISTA DE TAREAS:");
-    taskList.forEach((task, index) => {
-      console.log(`
-          Indicador: ${index+1}.
-          Descripción: ${task.description}
-          Estado: ${task.complete ? "completada" : "no completada"}
-          `);
-    });
-  };
+};
 
-const script = (firstTime = true) => {
+const showTasks = () => {
+  console.log("LISTA DE TAREAS:");
+  taskList.forEach((task, index) => {
+    console.log(`
+        Indicador: ${index+1}.
+        Descripción: ${task.description}
+        Estado: ${task.complete ? "completada" : "no completada"}
+        `);
+  });
+};
+
+const keep = (option) => {
+  option = option.toUpperCase();
+  option == "Y" ? script(false) : console.log("Adiós");
+};
+
+async function newTask(description) {
+  console.log("calling...");
+  const result = await addTask(description);
+  console.log(result);
+  myInterface.question(texts.keepQuestion, (option) => {
+    keep(option);
+  });
+};
+
+function script(firstTime = true){
   firstTime ? console.log(texts.greetings) : console.log(texts.newRound);
   myInterface.question(texts.mainMenu, (option) => {
     switch (option) {
@@ -83,25 +109,28 @@ const script = (firstTime = true) => {
         break;
       case "2":
         myInterface.question(texts.addDescription, (description) => {
-          addTask(description);
-          myInterface.question(texts.keepQuestion, (option) => {
-            keep(option);
-          });
+          newTask(description);
         });
         break;
       case "3":
         myInterface.question(texts.idTaskDelete, (id) => {
-          deleteTask(id);
-          myInterface.question(texts.keepQuestion, (option) => {
-            keep(option);
-          });
+          console.log("calling...");
+          deleteTask(id).then((resolve) => {
+            console.log(resolve);
+            myInterface.question(texts.keepQuestion, (option) => {
+              keep(option);
+            });
+          }); 
         });
         break;
       case "4":
         myInterface.question(texts.idTaskComplete, (id) => {
-          completeTask(id);
-          myInterface.question(texts.keepQuestion, (option) => {
-            keep(option);
+          console.log("calling...");
+          completeTask(id).then((resolve) => {
+            console.log(resolve);
+            myInterface.question(texts.keepQuestion, (option) => {
+              keep(option);
+            });
           });
         });
         break;
