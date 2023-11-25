@@ -1,21 +1,26 @@
 const express = require("express");
-
-const port= 3000;
+const port = 3000;
+const log = console.log;
 
 const app = express();
+const listEditRouter = require("./list-edit-router.js");
+const listViewRouter = require("./list-view-router.js");
 
-const taskList = [
-  {
-    name: "Tarea",
-    complete: false,
-    id: "0",
-  }
-]
+app.use("/edit", listEditRouter);
+app.use("/view", listViewRouter);
 
-app.get("/task", (req, res) => {
-  res.status(200).send(JSON.stringify(taskList));
+const TaskList = [
+    {
+        "id":"123456",
+        "completed":false,
+        "description":"Walk the dog",
+    },
+];
+
+app.get("/", (req, res) => {
+    res.send(JSON.stringify(TaskList));
 })
 
 app.listen(port, (error) => {
-  error ? console.log(error) : console.log("server listening...")
+    error ? log(error) : log("server listening...");
 })
